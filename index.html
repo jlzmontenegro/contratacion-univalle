@@ -1,0 +1,772 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#fbfaf8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#161513" media="(prefers-color-scheme: dark)">
+<title>Contratación Univalle 2024–2026</title>
+<meta name="description" content="Tablero de la contratación de la Universidad del Valle 2024–2026: 8.821 contratos tomados de SECOP II y de los reportes de ejecución de Univalle.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+  :root {
+    color-scheme: light;
+    --font-anthropic-sans: "Source Sans 3", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-anthropic-serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+    --color-bg: #fbfaf8; --color-panel: #ffffff; --color-fg: #1f1d1a; --color-fg-muted: #66625b;
+    --color-border-line: #e2ddd5; --color-bad: #b42318; --color-ok: #1f7a3a; --color-warn: #a15c00;
+    --cds-chart-grid: #ece8e1; --cds-chart-axis: #b9b3a9; --cds-chart-reference: #8a2433; --cds-chart-muted: #c9c3b9;
+    --cds-surface-popover: #ffffff; --cds-border: #d9d4cb; --cds-shadow-popover: 0 6px 20px rgba(31, 29, 26, .12);
+    --cds-text-secondary: #66625b;
+    --c1: #a3202f; --c2: #2f5d8a; --c3: #a86d1f; --c4: #3f7d5c;
+    --cds-gap-xs: .25rem; --cds-gap-sm: .5rem; --cds-gap-md: .875rem; --cds-gap-lg: 1.5rem; --cds-gap-xl: 2.25rem;
+    --cds-pad-xs: .3rem; --cds-pad-sm: .55rem; --cds-pad-md: .9rem; --cds-pad-lg: 1.2rem; --cds-pad-xl: 1.8rem;
+    --cds-radius: 8px;
+    --cds-font-size-caption: .8125rem; --cds-font-size-body: .9375rem; --cds-font-size-heading: 1.0625rem; --cds-font-size-title: 1.875rem;
+    --cds-font-weight-medium: 600; --cds-dur-slow: .3s;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --color-bg: #161513; --color-panel: #201e1b; --color-fg: #eeebe6; --color-fg-muted: #aaa59d;
+      --color-border-line: #38352f; --color-bad: #f97066; --color-ok: #6fcf97; --color-warn: #f5b041;
+      --cds-chart-grid: #2c2a26; --cds-chart-axis: #57534c; --cds-chart-reference: #e57b88; --cds-chart-muted: #4a4640;
+      --cds-surface-popover: #27241f; --cds-border: #45413b; --cds-shadow-popover: 0 6px 20px rgba(0, 0, 0, .45);
+      --cds-text-secondary: #aaa59d;
+      --c1: #e2707c; --c2: #7fa9d4; --c3: #ddaa62; --c4: #7fbf99;
+    }
+  }
+  html { background: var(--color-bg); -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--color-bg); color: var(--color-fg); font-family: var(--font-anthropic-sans); font-size: var(--cds-font-size-body); line-height: 1.45; }
+  #dash-root { max-width: 1320px; margin-inline: auto; padding-block: max(1rem, env(safe-area-inset-top, 0px)) 2.5rem;
+    padding-left: max(12px, env(safe-area-inset-left, 0px)); padding-right: max(12px, env(safe-area-inset-right, 0px)); }
+  @media (min-width: 600px) { #dash-root { padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); padding-top: 1.5rem; } }
+  @media (min-width: 1100px) { #dash-root { padding-left: 32px; padding-right: 32px; } }
+  [hidden] { display: none !important; }
+  .dash-skeleton { color: transparent !important; background: var(--color-border-line); border-radius: 6px; animation: uvpulse 1.2s ease-in-out infinite; }
+  @keyframes uvpulse { 50% { opacity: .5; } }
+  @media (prefers-reduced-motion: reduce) { .dash-skeleton { animation: none; } }
+  .uv b, .uv strong { font-weight: 600; }
+
+  /* Mobile first: estilos base para celular; se amplía en 600px (celular grande), 768px (tableta) y 1100px (escritorio). */
+  .uv { display: grid; gap: var(--cds-gap-md); font-family: var(--font-anthropic-sans); font-variant-numeric: tabular-nums; min-width: 0; }
+  .uv * { box-sizing: border-box; }
+  .uv-head { display: grid; gap: var(--cds-gap-xs); }
+  .uv-title { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: clamp(1.5rem, 1.1rem + 2vw, var(--cds-font-size-title)); line-height: 1.15; margin: 0; text-wrap: balance; }
+  .uv-take { color: var(--color-fg-muted); font-size: var(--cds-font-size-body); margin: 0; max-width: 70ch; }
+
+  /* Botones y controles: objetivos táctiles de 44px en celular */
+  .uv-btn, .uv-chip, .uv-seg button, .uv-input, .uv-cols summary { min-height: 44px; }
+  .uv-input { font: inherit; font-size: 16px; color: var(--color-fg); background: var(--color-bg); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-xs) var(--cds-pad-sm); min-width: 0; width: 100%; }
+  .uv-input:focus-visible, .uv-chip:focus-visible, .uv-btn:focus-visible, .uv-seg button:focus-visible, .uv th button:focus-visible, .uv-cols summary:focus-visible { outline: 2px solid var(--cds-chart-reference); outline-offset: 1px; }
+  .uv-btn { font: inherit; font-size: var(--cds-font-size-caption); color: var(--color-fg); background: var(--color-bg); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-xs) var(--cds-pad-md); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: var(--cds-gap-xs); }
+  .uv-btn:disabled { opacity: .45; cursor: default; }
+  .uv-chips { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs); }
+  .uv-chip { font: inherit; font-size: var(--cds-font-size-caption); color: var(--color-fg); background: var(--color-bg); border: 1px solid var(--color-border-line); border-radius: 999px; padding: var(--cds-pad-xs) var(--cds-pad-md); cursor: pointer; }
+  .uv-chip[aria-pressed="true"] { background: var(--color-fg); color: var(--color-bg); border-color: var(--color-fg); }
+
+  /* Filtros: plegables en celular */
+  .uv-ftoggle { width: 100%; justify-content: space-between; font-size: var(--cds-font-size-body); background: var(--color-panel); }
+  .uv-ftoggle .uv-fcount { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+  .uv-ftoggle .uv-caret { transition: transform var(--cds-dur-slow); }
+  .uv-ftoggle[aria-expanded="true"] .uv-caret { transform: rotate(180deg); }
+  .uv-filters { display: grid; gap: var(--cds-gap-md); background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md); }
+  .uv-f { display: grid; gap: var(--cds-gap-xs); min-width: 0; }
+  .uv-f > span, .uv-f > label { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); letter-spacing: .02em; }
+  .uv-range { display: grid; grid-template-columns: 1fr 1fr; gap: var(--cds-gap-xs); }
+  .uv-active { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs); }
+  .uv-active:empty { display: none; }
+  .uv-reset { width: 100%; }
+
+  /* Indicadores: 2 columnas en celular */
+  .uv-kpis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--cds-gap-sm); }
+  .uv-kpi { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-sm) var(--cds-pad-md); display: grid; gap: 2px; align-content: start; min-width: 0; }
+  .uv-kpi-label { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+  .uv-kpi-value { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: clamp(1.25rem, 1rem + 1.4vw, var(--cds-font-size-title)); line-height: 1.15; overflow-wrap: anywhere; }
+  .uv-kpi-note { font-size: .75rem; color: var(--color-fg-muted); }
+
+  /* Gráficos: una columna en celular */
+  .uv-charthead { display: grid; gap: var(--cds-gap-sm); }
+  .uv-seg { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); overflow: hidden; }
+  .uv-seg button { font: inherit; font-size: var(--cds-font-size-caption); border: 0; background: var(--color-bg); color: var(--color-fg); padding: var(--cds-pad-xs) var(--cds-pad-sm); cursor: pointer; }
+  .uv-seg button + button { border-left: 1px solid var(--color-border-line); }
+  .uv-seg button[aria-pressed="true"] { background: var(--color-fg); color: var(--color-bg); }
+  .uv-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--cds-gap-md); }
+  .uv-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md); display: grid; gap: var(--cds-gap-sm); min-width: 0; align-content: start; }
+  .uv-card h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0; }
+  .uv-note { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin: 0; }
+  .uv-chart { position: relative; min-height: 14rem; min-width: 0; }
+  .uv-chart svg { display: block; max-width: 100%; }
+  .uv-chart .bar { cursor: pointer; }
+  .uv-chart .bar.dim { opacity: .35; }
+  .uv-tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); max-width: min(18rem, 80vw); z-index: 2; }
+  .uv-tip .k { color: var(--cds-text-secondary); }
+
+  /* Contratos: tarjetas en celular, tabla desde 768px */
+  .uv-tablebar { display: grid; gap: var(--cds-gap-sm); }
+  .uv-tabletools { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--cds-gap-xs); align-items: end; }
+  .uv-sort { display: grid; gap: 2px; }
+  .uv-sort label { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+  .uv-sortrow { display: grid; grid-template-columns: minmax(0, 1fr) 44px; gap: var(--cds-gap-xs); }
+  .uv-cols { position: relative; }
+  .uv-cols summary { list-style: none; }
+  .uv-cols summary::-webkit-details-marker { display: none; }
+  .uv-cols-menu { position: absolute; right: 0; top: calc(100% + 4px); z-index: 3; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-sm); display: grid; gap: 2px; min-width: 14rem; max-width: 80vw; font-size: var(--cds-font-size-body); }
+  .uv-cols-menu label { display: flex; gap: var(--cds-gap-sm); align-items: center; cursor: pointer; min-height: 40px; }
+  .uv-cols-menu input { width: 18px; height: 18px; }
+
+  .uv-tablewrap { min-width: 0; }
+  .uv table { border-collapse: collapse; width: 100%; font-size: var(--cds-font-size-caption); }
+  .uv thead { display: none; }
+  .uv tbody { display: grid; gap: var(--cds-gap-sm); }
+  .uv tbody tr { display: grid; gap: 4px; background: var(--color-bg); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-sm) var(--cds-pad-md); }
+  .uv td { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); gap: var(--cds-gap-sm); padding: 2px 0; overflow-wrap: anywhere; }
+  .uv td::before { content: attr(data-label); color: var(--color-fg-muted); }
+  .uv td.name { grid-template-columns: minmax(0, 1fr); font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); }
+  .uv td.name::before { display: none; }
+  .uv td.obj { grid-template-columns: minmax(0, 1fr); line-height: 1.45; }
+  .uv td.obj::before { margin-bottom: -2px; }
+  .uv td.num { font-weight: var(--cds-font-weight-medium); }
+  .uv td.muted { color: var(--color-fg-muted); }
+  .uv td a { color: inherit; }
+  .uv td.uv-empty { display: block; padding: var(--cds-pad-lg); text-align: center; color: var(--color-fg-muted); }
+  .uv td.uv-empty::before { display: none; }
+
+  .uv-pager { display: grid; gap: var(--cds-gap-sm); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+  .uv-pager-ctrl { display: grid; grid-template-columns: 44px 44px minmax(0, 1fr) 44px 44px; gap: var(--cds-gap-xs); align-items: center; }
+  .uv-pager-ctrl .uv-btn { padding: 0; }
+  #t-page { text-align: center; }
+  .uv-size { display: flex; align-items: center; gap: var(--cds-gap-sm); }
+  .uv-size select { width: auto; }
+  .uv-txt { display: none; }
+
+  .uv-fail, .uv-nodata { display: flex; align-items: center; justify-content: center; gap: var(--cds-gap-xs); color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); min-height: inherit; text-align: center; }
+  .uv-fail::before { content: ""; width: .375rem; height: .375rem; border-radius: 50%; background: var(--color-bad); flex: none; }
+  [data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+
+  @media (min-width: 600px) {
+    .uv { gap: var(--cds-gap-lg); }
+    .uv-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .uv-f-wide { grid-column: 1 / -1; }
+    .uv-reset { width: auto; justify-self: start; }
+    .uv-kpi { padding: var(--cds-pad-md) var(--cds-pad-lg); }
+    .uv-charthead { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+    .uv-seg { display: inline-grid; }
+    .uv-card { padding: var(--cds-pad-lg); }
+    .uv-pager { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+    .uv-pager-ctrl { grid-template-columns: auto auto auto auto auto; }
+    .uv-pager-ctrl .uv-btn { padding: var(--cds-pad-xs) var(--cds-pad-md); }
+    .uv-txt { display: inline; }
+  }
+  @media (min-width: 768px) {
+    .uv-ftoggle { display: none; }
+    .uv-filters[hidden] { display: grid !important; }
+    .uv-kpis { gap: var(--cds-gap-md); }
+    .uv-sort { display: none; }
+    .uv-tablebar { grid-template-columns: minmax(0, 1fr) auto; align-items: end; }
+    .uv-tabletools { grid-template-columns: auto; }
+    .uv-btn, .uv-chip, .uv-seg button, .uv-input, .uv-cols summary { min-height: 36px; }
+    .uv-input { font-size: var(--cds-font-size-body); }
+    /* tabla clásica */
+    .uv-tablewrap { overflow-x: auto; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); }
+    .uv thead { display: table-header-group; }
+    .uv tbody { display: table-row-group; }
+    .uv tbody tr { display: table-row; background: none; border: 0; padding: 0; }
+    .uv td { display: table-cell; padding: var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); vertical-align: top; overflow-wrap: normal; }
+    .uv td::before { display: none; }
+    .uv td.name { font-size: var(--cds-font-size-caption); min-width: 12rem; }
+    .uv td.obj { min-width: 22rem; max-width: 46rem; }
+    .uv td.num, .uv th.num { text-align: right; white-space: nowrap; font-weight: 400; }
+    .uv td.date { white-space: nowrap; }
+    .uv tbody tr:hover td { background: var(--color-panel); }
+    .uv th { position: sticky; top: 0; background: var(--color-panel); text-align: left; font-weight: var(--cds-font-weight-medium); border-bottom: 1px solid var(--color-border-line); padding: 0; white-space: nowrap; }
+    .uv th button { font: inherit; color: inherit; background: none; border: 0; padding: var(--cds-pad-sm); width: 100%; text-align: inherit; cursor: pointer; }
+    .uv th[aria-sort="ascending"] button::after { content: " ▲"; }
+    .uv th[aria-sort="descending"] button::after { content: " ▼"; }
+  }
+  @media (min-width: 900px) {
+    .uv-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .uv-kpi-value { font-size: clamp(1.25rem, .6rem + 1.4vw, var(--cds-font-size-title)); white-space: nowrap; }
+  }
+  /* En pantallas táctiles (tabletas, celular horizontal) se mantienen objetivos de 44px */
+  @media (pointer: coarse) {
+    .uv-btn, .uv-chip, .uv-seg button, .uv-input, .uv-cols summary { min-height: 44px; }
+    .uv th button { min-height: 44px; }
+  }
+  @media (min-width: 1100px) {
+    .uv-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .uv-filters { grid-template-columns: auto minmax(16rem, 1fr) auto; align-items: end; }
+  }
+</style>
+</head>
+<body>
+<div id="dash-root">
+
+
+<div class="uv">
+  <header class="uv-head" id="resumen">
+    <h1 class="uv-title">Contratación Universidad del Valle 2024–2026</h1>
+    <p class="uv-take dash-skeleton" id="uv-take" data-source="contratos">—</p>
+  </header>
+
+  <button class="uv-btn uv-ftoggle" id="uv-ftoggle" type="button" aria-expanded="false" aria-controls="filtros">
+    <span>Filtros <span class="uv-fcount" id="uv-fcount"></span></span><span class="uv-caret" aria-hidden="true">▾</span>
+  </button>
+  <section class="uv-filters" id="filtros" aria-label="Filtros" hidden>
+    <div class="uv-f">
+      <span>Año</span>
+      <div class="uv-chips" id="uv-years"></div>
+    </div>
+    <div class="uv-f">
+      <label for="uv-q">Buscar en contratista, objeto, número o NIT</label>
+      <input class="uv-input" id="uv-q" type="search" placeholder="Ej.: vigilancia, Fundación, 050.050…" autocomplete="off">
+    </div>
+    <div class="uv-f">
+      <span>Valor del contrato (millones de pesos)</span>
+      <div class="uv-range">
+        <input class="uv-input" id="uv-vmin" type="number" inputmode="numeric" min="0" step="1" placeholder="Desde" aria-label="Valor mínimo en millones">
+        <input class="uv-input" id="uv-vmax" type="number" inputmode="numeric" min="0" step="1" placeholder="Hasta" aria-label="Valor máximo en millones">
+      </div>
+    </div>
+    <div class="uv-f uv-f-wide" style="grid-column: 1 / -1;">
+      <span>Tipo de contrato</span>
+      <div class="uv-chips" id="uv-tipos"></div>
+    </div>
+    <div class="uv-active uv-f-wide" id="uv-active" style="grid-column: 1 / -1;"></div>
+    <button class="uv-btn uv-reset" id="uv-reset" type="button">Quitar filtros</button>
+  </section>
+
+  <section class="uv-kpis" id="indicadores" data-source="contratos">
+    <div class="uv-kpi"><span class="uv-kpi-label">Contratos</span><span class="uv-kpi-value dash-skeleton" id="k-n">—</span><span class="uv-kpi-note" id="k-n-note">&nbsp;</span></div>
+    <div class="uv-kpi"><span class="uv-kpi-label">Valor contratado</span><span class="uv-kpi-value dash-skeleton" id="k-v">—</span><span class="uv-kpi-note" id="k-v-note">&nbsp;</span></div>
+    <div class="uv-kpi"><span class="uv-kpi-label">Valor promedio</span><span class="uv-kpi-value dash-skeleton" id="k-avg">—</span><span class="uv-kpi-note">Por contrato con valor</span></div>
+    <div class="uv-kpi"><span class="uv-kpi-label">Contratistas distintos</span><span class="uv-kpi-value dash-skeleton" id="k-c">—</span><span class="uv-kpi-note" id="k-c-note">&nbsp;</span></div>
+  </section>
+
+  <div class="uv-charthead">
+    <p class="uv-note">Toque o haga clic en una barra para filtrar todo el tablero por ese año, tipo o contratista.</p>
+    <div class="uv-seg" role="group" aria-label="Medida de los gráficos">
+      <button type="button" data-metric="valor" id="m-valor">Valor contratado</button>
+      <button type="button" data-metric="n" id="m-n">N° de contratos</button>
+    </div>
+  </div>
+
+  <div class="uv-grid">
+    <section class="uv-card" id="por-anio">
+      <h2>Por año</h2>
+      <p class="uv-note">Año que indica el número del contrato.</p>
+      <div class="uv-chart dash-skeleton" id="c-anio" data-source="contratos"></div>
+    </section>
+    <section class="uv-card" id="por-tipo">
+      <h2>Por tipo de contrato</h2>
+      <p class="uv-note">Tipo según Univalle o SECOP II; si no lo traen, según el objeto.</p>
+      <div class="uv-chart dash-skeleton" id="c-tipo" data-source="contratos"></div>
+    </section>
+    <section class="uv-card" id="por-contratista">
+      <h2>Contratistas con mayor valor</h2>
+      <p class="uv-note">Los 12 primeros con los filtros actuales, sumando todos sus contratos.</p>
+      <div class="uv-chart dash-skeleton" id="c-top" data-source="contratos"></div>
+    </section>
+    <section class="uv-card" id="por-mes">
+      <h2>Por mes de inicio</h2>
+      <p class="uv-note">Según la fecha de inicio. En 2024 solo la traen los contratos con acta de inicio leída (unos 260).</p>
+      <div class="uv-chart dash-skeleton" id="c-mes" data-source="contratos"></div>
+    </section>
+  </div>
+
+  <section class="uv-card" id="tabla">
+    <div class="uv-tablebar">
+      <div>
+        <h2>Contratos</h2>
+        <p class="uv-note" id="t-count">&nbsp;</p>
+      </div>
+      <div class="uv-tabletools">
+        <div class="uv-sort">
+          <label for="t-sort">Ordenar por</label>
+          <div class="uv-sortrow">
+            <select class="uv-input" id="t-sort"></select>
+            <button class="uv-btn" id="t-dir" type="button" aria-label="Cambiar orden">↓</button>
+          </div>
+        </div>
+        <details class="uv-cols" id="uv-cols">
+          <summary class="uv-btn">Columnas</summary>
+          <div class="uv-cols-menu" id="uv-cols-menu"></div>
+        </details>
+      </div>
+    </div>
+    <div class="uv-tablewrap">
+      <table id="t-contratos" data-source="contratos" data-row-key="id">
+        <thead><tr id="t-head"></tr></thead>
+        <tbody id="t-body"></tbody>
+      </table>
+    </div>
+    <div class="uv-pager">
+      <div class="uv-size">
+        <span id="t-range">&nbsp;</span>
+        <select class="uv-input" id="t-size" aria-label="Contratos por página">
+          <option value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option>
+        </select>
+      </div>
+      <div class="uv-pager-ctrl">
+        <button class="uv-btn" id="t-first" type="button" aria-label="Primera página">«</button>
+        <button class="uv-btn" id="t-prev" type="button" aria-label="Página anterior">‹<span class="uv-txt">&nbsp;Anterior</span></button>
+        <span id="t-page">&nbsp;</span>
+        <button class="uv-btn" id="t-next" type="button" aria-label="Página siguiente"><span class="uv-txt">Siguiente&nbsp;</span>›</button>
+        <button class="uv-btn" id="t-last" type="button" aria-label="Última página">»</button>
+      </div>
+    </div>
+  </section>
+
+  <p class="uv-note" id="fuentes">
+    Fuentes: 2024, documentos de contrato (órdenes contractuales, contratos y actas) publicados por Univalle en SECOP II; 2025 y 2026, reportes de ejecución de contratos del portal de Transparencia de Univalle. Valor = valor inicial adjudicado, sin adiciones. Corte: 22 de octubre de 2026. En 2024 el contratista se leyó del contrato, del acta de inicio u otros documentos del proceso (incluido OCR de escaneados); la columna «Origen del contratista» dice de cuál. Los que no tienen ningún documento que lo nombre aparecen como «Sin identificar».
+   <a href="data/contratos.json" download>Descargar los datos (JSON)</a>.</p>
+</div>
+
+</div>
+
+<script>
+/* Interfaz mínima que usa la página: datos, filtros (parámetros) y colores. */
+window.dash = (() => {
+  const DEFAULTS = { anios: [], tipos: [], q: '', contratista: null, contratista_label: null, vmin: null, vmax: null, metrica: 'valor' };
+  let params = { ...DEFAULTS };
+  let state = { status: 'loading', data: [], columns: [] };
+  const subs = [];
+  const run = () => subs.forEach((f) => { try { f(); } catch (e) { console.error(e); } });
+  fetch('data/contratos.json')
+    .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then((d) => { state = { status: 'ok', data: d, columns: d.length ? Object.keys(d[0]) : [] }; run(); })
+    .catch((e) => { state = { status: 'error', data: [], message: String(e) }; run(); });
+  let t = null, lastW = window.innerWidth;
+  window.addEventListener('resize', () => { if (window.innerWidth === lastW) return; lastW = window.innerWidth; clearTimeout(t); t = setTimeout(run, 150); });
+  return {
+    data: () => state,
+    onData: (f) => { subs.push(f); f(); },
+    params: () => params,
+    setParams: (p) => { params = { ...params, ...p }; run(); },
+    resetParams: () => { params = { ...DEFAULTS }; run(); },
+    colors: ['var(--c1)', 'var(--c2)', 'var(--c3)', 'var(--c4)'],
+  };
+})();
+</script>
+<script>
+(() => {
+  const ID = 'contratos';
+  const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+  const nf = new Intl.NumberFormat('es-CO', { maximumFractionDigits: 0 });
+  const nf1 = new Intl.NumberFormat('es-CO', { maximumFractionDigits: 1 });
+  const cop = (v) => (v == null || isNaN(v) ? '—' : '$ ' + nf.format(v));
+  const mill = (v) => '$ ' + nf.format(v / 1e6) + ' M';
+  const short = (v) => (v >= 1e9 ? '$ ' + nf1.format(v / 1e9) + ' mil M' : v >= 1e6 ? '$ ' + nf.format(v / 1e6) + ' M' : '$ ' + nf.format(v));
+  const count = (v) => nf.format(v);
+  const pct = (a, b) => (b ? nf1.format((100 * a) / b) + ' %' : '—');
+  const norm = (s) => (s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase();
+  const nameKey = (r) => {
+    if (r.clave_contratista) return r.clave_contratista;  // clave calculada en la base (NIT validado o nombre normalizado)
+    if (!r.contratista) return null;
+    return 'T' + norm(r.contratista).replace(/\b(S\.?\s?A\.?\s?S\.?|SAS|S\.?A\.?|LTDA\.?|BIC)\b/g, ' ').replace(/[^A-Z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+  };
+  const fdate = (s) => s || '—';
+  const $ = (id) => document.getElementById(id);
+  const isWide = () => window.matchMedia('(min-width: 768px)').matches;
+
+  // ---------- columnas y estado local de la tabla ----------
+  const COLS = [
+    { f: 'contratista', label: 'Contratista', cls: 'name', on: true },
+    { f: 'numero_contrato', label: 'N° de contrato', cls: '', on: true },
+    { f: 'tipo', label: 'Tipo de contrato', cls: '', on: true },
+    { f: 'objeto', label: 'Objeto', cls: 'obj', on: true },
+    { f: 'fecha_inicio', label: 'Fecha inicio', cls: 'date', on: true },
+    { f: 'fecha_fin', label: 'Fecha fin', cls: 'date', on: true },
+    { f: 'valor', label: 'Valor contratado', cls: 'num', on: true },
+    { f: 'anio', label: 'Año', cls: 'num', on: false },
+    { f: 'nit', label: 'NIT / CC', cls: '', on: false },
+    { f: 'dependencia', label: 'Dependencia', cls: '', on: false },
+    { f: 'fuente', label: 'Fuente', cls: '', on: false },
+    { f: 'origen_contratista', label: 'Origen del contratista', cls: '', on: false },
+    { f: 'enlace', label: 'Documento / proceso', cls: '', on: false },
+  ];
+  let sort = { f: 'valor', dir: -1 };
+  let page = 0;
+  let size = window.matchMedia('(min-width: 768px)').matches ? 25 : 10;
+  document.getElementById('t-size').value = String(size);
+  let lastSig = '';
+
+  // ---------- filtros ----------
+  const P = () => {
+    const p = dash.params();
+    return {
+      anios: Array.isArray(p.anios) ? p.anios.map(Number) : [],
+      tipos: Array.isArray(p.tipos) ? p.tipos : [],
+      q: p.q || '',
+      contratista: p.contratista || null,
+      contratista_label: p.contratista_label || null,
+      vmin: p.vmin ?? null,
+      vmax: p.vmax ?? null,
+      metrica: p.metrica === 'n' ? 'n' : 'valor',
+    };
+  };
+  const toggle = (list, v) => (list.includes(v) ? list.filter((x) => x !== v) : [...list, v]);
+
+  const qEl = $('uv-q'), vminEl = $('uv-vmin'), vmaxEl = $('uv-vmax');
+  let qTimer = null;
+  qEl.addEventListener('input', () => {
+    clearTimeout(qTimer);
+    qTimer = setTimeout(() => dash.setParams({ q: qEl.value.trim() }), 250);
+  });
+  const setRange = () => {
+    const a = vminEl.value === '' ? null : Number(vminEl.value);
+    const b = vmaxEl.value === '' ? null : Number(vmaxEl.value);
+    dash.setParams({ vmin: a != null && isFinite(a) ? a : null, vmax: b != null && isFinite(b) ? b : null });
+  };
+  vminEl.addEventListener('change', setRange);
+  vmaxEl.addEventListener('change', setRange);
+  $('uv-reset').addEventListener('click', () => { dash.resetParams(); qEl.value = ''; vminEl.value = ''; vmaxEl.value = ''; page = 0; });
+  document.querySelectorAll('[data-metric]').forEach((b) => b.addEventListener('click', () => dash.setParams({ metrica: b.dataset.metric })));
+  const ft = $('uv-ftoggle'), fp = $('filtros');
+  ft.addEventListener('click', () => { const open = ft.getAttribute('aria-expanded') !== 'true'; ft.setAttribute('aria-expanded', open); fp.hidden = !open; });
+
+  // ---------- columnas ----------
+  const colMenu = $('uv-cols-menu');
+  COLS.forEach((c) => {
+    const lab = document.createElement('label');
+    const cb = document.createElement('input');
+    cb.type = 'checkbox'; cb.checked = c.on; cb.id = 'col-' + c.f;
+    cb.addEventListener('change', () => { c.on = cb.checked; fillSort(); drawTable(true); });
+    lab.append(cb, document.createTextNode(c.label));
+    colMenu.append(lab);
+  });
+  document.addEventListener('click', (e) => { const d = $('uv-cols'); if (d.open && !d.contains(e.target)) d.open = false; });
+
+  // ---------- orden en celular ----------
+  const sortSel = $('t-sort'), dirBtn = $('t-dir');
+  function fillSort() {
+    const vis = COLS.filter((c) => c.on && c.f !== 'enlace');
+    sortSel.replaceChildren(...vis.map((c) => new Option(c.label, c.f)));
+    if (!vis.some((c) => c.f === sort.f)) sort = { f: vis[0] ? vis[0].f : 'valor', dir: 1 };
+    sortSel.value = sort.f;
+    dirBtn.textContent = sort.dir > 0 ? '↑' : '↓';
+    dirBtn.setAttribute('aria-label', sort.dir > 0 ? 'Orden ascendente; cambiar a descendente' : 'Orden descendente; cambiar a ascendente');
+  }
+  sortSel.addEventListener('change', () => { sort = { f: sortSel.value, dir: sortSel.value === 'valor' ? -1 : 1 }; page = 0; fillSort(); drawTable(true); });
+  dirBtn.addEventListener('click', () => { sort = { f: sort.f, dir: -sort.dir }; page = 0; fillSort(); drawTable(true); });
+  fillSort();
+
+  // ---------- paginación ----------
+  const toTop = () => { if (!isWide()) $('tabla').scrollIntoView({ block: 'start' }); };
+  $('t-size').addEventListener('change', (e) => { size = Number(e.target.value); page = 0; drawTable(true); });
+  $('t-first').addEventListener('click', () => { page = 0; drawTable(true); toTop(); });
+  $('t-prev').addEventListener('click', () => { page = Math.max(0, page - 1); drawTable(true); toTop(); });
+  $('t-next').addEventListener('click', () => { page += 1; drawTable(true); toTop(); });
+  $('t-last').addEventListener('click', () => { page = 1e9; drawTable(true); toTop(); });
+
+  // ---------- datos filtrados ----------
+  let ALL = [], ROWS = [], KEYS = new Map(), LABEL = new Map();
+  function prepare(data) {
+    if (ALL === data) return;
+    ALL = data;
+    KEYS = new Map(); LABEL = new Map();
+    const counts = new Map();
+    for (const r of data) {
+      const k = nameKey(r);
+      KEYS.set(r, k);
+      r._s = norm([r.contratista, r.objeto, r.numero_contrato, r.nit].join(' '));
+      if (k && r.contratista) {
+        const m = counts.get(k) || new Map();
+        m.set(r.contratista, (m.get(r.contratista) || 0) + 1);
+        counts.set(k, m);
+      }
+    }
+    for (const [k, m] of counts) LABEL.set(k, [...m.entries()].sort((a, b) => b[1] - a[1])[0][0]);
+  }
+  function filtered(p, skip) {
+    const words = norm(p.q).split(/\s+/).filter(Boolean);
+    const lo = p.vmin != null ? p.vmin * 1e6 : null;
+    const hi = p.vmax != null ? p.vmax * 1e6 : null;
+    return ALL.filter((r) => {
+      if (skip !== 'anio' && p.anios.length && !p.anios.includes(r.anio)) return false;
+      if (skip !== 'tipo' && p.tipos.length && !p.tipos.includes(r.tipo)) return false;
+      if (p.contratista && KEYS.get(r) !== p.contratista) return false;
+      if (lo != null && !(r.valor >= lo)) return false;
+      if (hi != null && !(r.valor <= hi)) return false;
+      for (const w of words) if (!r._s.includes(w)) return false;
+      return true;
+    });
+  }
+  const sumV = (rows) => rows.reduce((s, r) => s + (r.valor || 0), 0);
+  const metricOf = (rows, m) => (m === 'n' ? rows.length : sumV(rows));
+  const fmtMetric = (v, m) => (m === 'n' ? count(v) : short(v));
+
+  // ---------- tooltip ----------
+  function tip(box) {
+    let t = box.querySelector('.uv-tip');
+    if (!t) { t = document.createElement('div'); t.className = 'uv-tip'; t.hidden = true; box.append(t); }
+    return {
+      show(ev, lines) {
+        t.replaceChildren(...lines.filter(Boolean).map((l, i) => { const d = document.createElement('div'); if (i === 0) d.className = 'k'; d.textContent = l; return d; }));
+        t.hidden = false;
+        const br = box.getBoundingClientRect();
+        let x = ev.clientX - br.left + 12, y = ev.clientY - br.top + 12;
+        const w = t.offsetWidth, h = t.offsetHeight;
+        if (x + w > br.width) x = Math.max(0, ev.clientX - br.left - w - 12);
+        if (y + h > br.height) y = Math.max(0, ev.clientY - br.top - h - 12);
+        t.style.left = x + 'px'; t.style.top = y + 'px';
+      },
+      hide() { t.hidden = true; },
+    };
+  }
+  function measure(svg, texts, size) {
+    const g = svg.append('g').attr('opacity', 0);
+    let w = 0;
+    for (const s of texts) { const n = g.append('text').attr('font-size', size).text(s).node(); w = Math.max(w, n.getComputedTextLength()); }
+    g.remove();
+    return w;
+  }
+  function fit(svg, text, max, size) {
+    const n = svg.append('text').attr('font-size', size).attr('opacity', 0).text(text).node();
+    let s = text;
+    while (n.getComputedTextLength() > max && s.length > 4) { s = s.slice(0, -2); n.textContent = s + '…'; }
+    const out = n.textContent; n.remove();
+    return out;
+  }
+  const clear = (el) => el.querySelectorAll('svg,.uv-fail,.uv-nodata').forEach((s) => s.remove());
+
+  // ---------- barras horizontales (etiqueta encima en pantallas angostas) ----------
+  function hbars(el, items, opts) {
+    clear(el);
+    const W = el.clientWidth || 320;
+    const fs = 12;
+    const stacked = W < 520;
+    const bh = stacked ? 16 : 22, gap = stacked ? 10 : 8, lab = stacked ? 16 : 0;
+    const rowH = lab + bh + gap;
+    const H = Math.max(items.length * rowH, 60);
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('height', H).attr('viewBox', `0 0 ${W} ${H}`);
+    const valW = measure(svg, items.map((d) => fmtMetric(d.value, opts.metric)), fs) + 8;
+    const labMax = stacked ? 0 : Math.min(W * 0.4, measure(svg, items.map((d) => d.label), fs) + 6);
+    const x0 = stacked ? 0 : labMax + 8, x1 = W - valW;
+    const x = d3.scaleLinear([0, d3.max(items, (d) => d.value) || 1], [0, Math.max(10, x1 - x0)]);
+    const tp = tip(el);
+    const g = svg.selectAll('g.row').data(items).join('g').attr('class', 'row').attr('transform', (d, i) => `translate(0,${i * rowH})`);
+    g.append('text').attr('x', stacked ? 0 : labMax).attr('y', stacked ? 11 : bh / 2).attr('dy', stacked ? 0 : '0.35em')
+      .attr('text-anchor', stacked ? 'start' : 'end').attr('font-size', fs).attr('fill', 'var(--color-fg)')
+      .text((d) => fit(svg, d.label, stacked ? W : labMax, fs));
+    g.append('rect').attr('class', (d) => 'bar' + (opts.isDim && opts.isDim(d) ? ' dim' : '')).attr('x', x0).attr('y', lab).attr('height', bh).attr('rx', 4)
+      .attr('width', (d) => Math.max(2, x(d.value))).attr('fill', opts.color)
+      .on('mousemove', (ev, d) => tp.show(ev, [d.label, opts.metric === 'n' ? count(d.value) + ' contratos' : cop(d.value), d.extra]))
+      .on('mouseleave', () => tp.hide())
+      .on('click', (ev, d) => { tp.hide(); opts.onClick && opts.onClick(d); });
+    g.append('text').attr('x', (d) => x0 + Math.max(2, x(d.value)) + 6).attr('y', lab + bh / 2).attr('dy', '0.35em').attr('font-size', fs)
+      .attr('fill', 'var(--color-fg-muted)').text((d) => fmtMetric(d.value, opts.metric));
+  }
+
+  // ---------- barras verticales ----------
+  function vbars(el, items, opts) {
+    clear(el);
+    const W = el.clientWidth || 320;
+    const H = opts.height || 220;
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('height', H).attr('viewBox', `0 0 ${W} ${H}`);
+    const fs = 12;
+    const maxV = d3.max(items, (d) => d.value) || 1;
+    const y = d3.scaleLinear([0, maxV], [H - 24, opts.valueLabels ? 20 : 8]).nice();
+    const ticks = y.ticks(W < 420 ? 3 : 4);
+    const left = measure(svg, ticks.map((t) => fmtMetric(t, opts.metric)), fs) + 8;
+    const x = d3.scaleBand(items.map((d) => d.key), [left, W - 4]).padding(opts.padding ?? 0.3);
+    svg.append('g').selectAll('line').data(ticks).join('line').attr('x1', left).attr('x2', W - 4).attr('y1', (t) => y(t)).attr('y2', (t) => y(t))
+      .attr('stroke', 'var(--cds-chart-grid)').attr('stroke-width', 1);
+    svg.append('g').selectAll('text').data(ticks).join('text').attr('x', left - 6).attr('y', (t) => y(t)).attr('dy', '0.35em').attr('text-anchor', 'end')
+      .attr('font-size', fs).attr('fill', 'var(--color-fg-muted)').text((t) => fmtMetric(t, opts.metric));
+    const tp = tip(el);
+    const bw = Math.min(x.bandwidth(), opts.maxBar || 64);
+    svg.append('g').selectAll('rect').data(items).join('rect')
+      .attr('class', (d) => 'bar' + (opts.isDim && opts.isDim(d) ? ' dim' : ''))
+      .attr('x', (d) => x(d.key) + (x.bandwidth() - bw) / 2).attr('width', bw).attr('rx', Math.min(4, bw / 2))
+      .attr('y', (d) => y(d.value)).attr('height', (d) => Math.max(0, y(0) - y(d.value))).attr('fill', opts.color)
+      .on('mousemove', (ev, d) => tp.show(ev, [d.label, opts.metric === 'n' ? count(d.value) + ' contratos' : cop(d.value), d.extra]))
+      .on('mouseleave', () => tp.hide())
+      .on('click', (ev, d) => { tp.hide(); opts.onClick && opts.onClick(d); });
+    if (opts.valueLabels) {
+      svg.append('g').selectAll('text').data(items).join('text').attr('x', (d) => x(d.key) + x.bandwidth() / 2).attr('y', (d) => y(d.value) - 6)
+        .attr('text-anchor', 'middle').attr('font-size', fs).attr('fill', 'var(--color-fg)').text((d) => fmtMetric(d.value, opts.metric));
+    }
+    svg.append('g').selectAll('text').data(items.filter((d) => d.tick === undefined || d.tick !== '')).join('text')
+      .attr('x', (d) => x(d.key) + x.bandwidth() / 2).attr('y', H - 6).attr('text-anchor', 'middle').attr('font-size', fs)
+      .attr('fill', 'var(--color-fg-muted)').text((d) => (d.tick === undefined ? d.label : d.tick));
+    svg.append('line').attr('x1', left).attr('x2', W - 4).attr('y1', y(0)).attr('y2', y(0)).attr('stroke', 'var(--cds-chart-axis)');
+  }
+
+  function fail(el) { clear(el); const d = document.createElement('div'); d.className = 'uv-fail'; d.textContent = 'No se pudo cargar'; el.append(d); }
+  function emptyMsg(el, msg) { clear(el); const d = document.createElement('div'); d.className = 'uv-nodata'; d.textContent = msg; el.append(d); }
+
+  // ---------- tabla / tarjetas ----------
+  function drawTable(keepPage) {
+    const head = $('t-head'), body = $('t-body');
+    const vis = COLS.filter((c) => c.on);
+    head.replaceChildren(...vis.map((c) => {
+      const th = document.createElement('th');
+      th.dataset.field = c.f;
+      if (c.cls === 'num') th.className = 'num';
+      th.setAttribute('aria-sort', sort.f === c.f ? (sort.dir > 0 ? 'ascending' : 'descending') : 'none');
+      const b = document.createElement('button'); b.type = 'button'; b.textContent = c.label;
+      b.addEventListener('click', () => { sort = { f: c.f, dir: sort.f === c.f ? -sort.dir : (c.f === 'valor' ? -1 : 1) }; page = 0; fillSort(); drawTable(true); });
+      th.append(b);
+      return th;
+    }));
+    const rows = ROWS.slice();
+    const f = sort.f, dir = sort.dir;
+    rows.sort((a, b) => {
+      const va = a[f], vb = b[f];
+      if (va == null && vb == null) return 0;
+      if (va == null) return 1;
+      if (vb == null) return -1;
+      if (typeof va === 'number') return dir * (va - vb);
+      return dir * String(va).localeCompare(String(vb), 'es');
+    });
+    const pages = Math.max(1, Math.ceil(rows.length / size));
+    if (!keepPage) page = 0;
+    page = Math.min(Math.max(0, page), pages - 1);
+    const slice = rows.slice(page * size, page * size + size);
+    body.replaceChildren(...slice.map((r) => {
+      const tr = document.createElement('tr');
+      tr.dataset.key = r.id;
+      for (const c of vis) {
+        const td = document.createElement('td');
+        if (c.cls) td.className = c.cls;
+        td.dataset.label = c.label;
+        const v = r[c.f];
+        if (c.f === 'valor') td.textContent = cop(v);
+        else if (c.f === 'contratista') { td.textContent = v || 'Sin identificar'; if (!v) td.classList.add('muted'); }
+        else if (c.f === 'enlace') {
+          if (v) { const a = document.createElement('a'); a.href = v; a.target = '_blank'; a.rel = 'noopener'; a.textContent = 'Abrir en SECOP'; td.append(a); }
+          else td.textContent = '—';
+        } else if (c.f.startsWith('fecha')) td.textContent = fdate(v);
+        else td.textContent = v == null || v === '' ? '—' : String(v);
+        tr.append(td);
+      }
+      return tr;
+    }));
+    if (!slice.length) {
+      const tr = document.createElement('tr'); const td = document.createElement('td');
+      td.colSpan = vis.length; td.className = 'uv-empty'; td.textContent = 'Ningún contrato coincide con los filtros. Quite alguno para ver resultados.';
+      tr.append(td); body.append(tr);
+    }
+    const from = rows.length ? page * size + 1 : 0, to = Math.min(rows.length, (page + 1) * size);
+    $('t-range').textContent = `${count(from)}–${count(to)} de ${count(rows.length)}`;
+    $('t-page').textContent = `Pág. ${count(page + 1)} de ${count(pages)}`;
+    $('t-first').disabled = $('t-prev').disabled = page === 0;
+    $('t-next').disabled = $('t-last').disabled = page >= pages - 1;
+    $('t-count').textContent = `${count(rows.length)} contratos · valor ${cop(sumV(rows))}.`;
+  }
+
+  // ---------- controles de filtro ----------
+  function drawControls(p) {
+    $('uv-years').replaceChildren(...[2024, 2025, 2026].map((y) => {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'uv-chip'; b.textContent = y;
+      b.setAttribute('aria-pressed', p.anios.includes(y)); b.addEventListener('click', () => dash.setParams({ anios: toggle(P().anios, y) }));
+      return b;
+    }));
+    const tipos = [...d3.rollup(ALL, (v) => sumV(v), (r) => r.tipo)].sort((a, b) => b[1] - a[1]).map((d) => d[0]);
+    $('uv-tipos').replaceChildren(...tipos.map((t) => {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'uv-chip'; b.textContent = t;
+      b.setAttribute('aria-pressed', p.tipos.includes(t)); b.addEventListener('click', () => dash.setParams({ tipos: toggle(P().tipos, t) }));
+      return b;
+    }));
+    if (qEl !== document.activeElement) qEl.value = p.q;
+    if (vminEl !== document.activeElement) vminEl.value = p.vmin ?? '';
+    if (vmaxEl !== document.activeElement) vmaxEl.value = p.vmax ?? '';
+    document.querySelectorAll('[data-metric]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.metric === p.metrica));
+    const act = $('uv-active');
+    act.replaceChildren();
+    if (p.contratista) {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'uv-chip'; b.setAttribute('aria-pressed', 'true');
+      b.textContent = 'Contratista: ' + (p.contratista_label || LABEL.get(p.contratista) || '') + ' ×';
+      b.addEventListener('click', () => dash.setParams({ contratista: null, contratista_label: null }));
+      act.append(b);
+    }
+    const n = p.anios.length + p.tipos.length + (p.q ? 1 : 0) + (p.contratista ? 1 : 0) + (p.vmin != null || p.vmax != null ? 1 : 0);
+    $('uv-fcount').textContent = n ? `· ${n} activo${n > 1 ? 's' : ''}` : '';
+  }
+
+  dash.onData(() => {
+    const res = dash.data(ID);
+    const charts = ['c-anio', 'c-tipo', 'c-top', 'c-mes'].map($);
+    const skel = [...charts, $('uv-take'), $('k-n'), $('k-v'), $('k-avg'), $('k-c')];
+    if (res.status !== 'ok') {
+      if (res.status === 'error' || res.status === 'connect' || res.status === 'declined' || res.status === 'missing') {
+        skel.forEach((e) => e.classList.remove('dash-skeleton'));
+        charts.forEach(fail);
+      }
+      return;
+    }
+    skel.forEach((e) => e.classList.remove('dash-skeleton'));
+    prepare(res.data || []);
+    const p = P();
+    drawControls(p);
+    ROWS = filtered(p);
+    const m = p.metrica;
+
+    // indicadores
+    const total = sumV(ROWS);
+    const conValor = ROWS.filter((r) => r.valor != null);
+    const keys = new Set(ROWS.map((r) => KEYS.get(r)).filter(Boolean));
+    const sinId = ROWS.filter((r) => !r.contratista).length;
+    $('k-n').textContent = count(ROWS.length);
+    $('k-n-note').textContent = ROWS.length === ALL.length ? '2024 a oct-2026' : `de ${count(ALL.length)}`;
+    $('k-v').textContent = mill(total);
+    $('k-v-note').textContent = cop(total);
+    $('k-avg').textContent = conValor.length ? mill(total / conValor.length) : '—';
+    $('k-c').textContent = count(keys.size);
+    $('k-c-note').textContent = sinId ? `${count(sinId)} sin identificar` : 'Todos identificados';
+
+    // resumen en una frase
+    const byTipo = [...d3.rollup(ROWS, (v) => sumV(v), (r) => r.tipo)].sort((a, b) => b[1] - a[1]);
+    const byC = [...d3.rollup(ROWS.filter((r) => KEYS.get(r)), (v) => sumV(v), (r) => KEYS.get(r))].sort((a, b) => b[1] - a[1]);
+    $('uv-take').textContent = ROWS.length
+      ? `${count(ROWS.length)} contratos por ${mill(total)}. El tipo con más valor es ${byTipo[0][0].toLowerCase()} (${pct(byTipo[0][1], total)})` +
+        (byC.length ? ` y el mayor contratista es ${LABEL.get(byC[0][0]) || '—'} con ${mill(byC[0][1])}.` : '.')
+      : 'Ningún contrato coincide con los filtros.';
+
+    // por año (ignora el filtro de año para poder elegir)
+    const rA = filtered(p, 'anio');
+    const years = [2024, 2025, 2026].map((y) => { const rr = rA.filter((r) => r.anio === y); return { key: y, label: String(y), value: metricOf(rr, m), extra: m === 'n' ? mill(sumV(rr)) : count(rr.length) + ' contratos' }; });
+    vbars($('c-anio'), years, { metric: m, color: dash.colors[0], valueLabels: true, maxBar: 72, height: 220,
+      isDim: (d) => p.anios.length && !p.anios.includes(d.key), onClick: (d) => dash.setParams({ anios: toggle(P().anios, d.key) }) });
+
+    // por tipo (ignora el filtro de tipo)
+    const rT = filtered(p, 'tipo');
+    const tipos = [...d3.group(rT, (r) => r.tipo)].map(([t, rr]) => ({ key: t, label: t, value: metricOf(rr, m), extra: m === 'n' ? mill(sumV(rr)) : count(rr.length) + ' contratos' }))
+      .sort((a, b) => b.value - a.value);
+    if (tipos.length) hbars($('c-tipo'), tipos, { metric: m, color: dash.colors[1], isDim: (d) => p.tipos.length && !p.tipos.includes(d.key), onClick: (d) => dash.setParams({ tipos: toggle(P().tipos, d.key) }) });
+    else emptyMsg($('c-tipo'), 'Sin contratos con estos filtros');
+
+    // contratistas
+    const top = [...d3.group(ROWS.filter((r) => KEYS.get(r)), (r) => KEYS.get(r))]
+      .map(([k, rr]) => ({ key: k, label: LABEL.get(k) || k, value: metricOf(rr, m), extra: m === 'n' ? mill(sumV(rr)) : count(rr.length) + (rr.length === 1 ? ' contrato' : ' contratos') }))
+      .sort((a, b) => b.value - a.value).slice(0, 12);
+    if (top.length) hbars($('c-top'), top, { metric: m, color: dash.colors[2],
+      onClick: (d) => dash.setParams(P().contratista === d.key ? { contratista: null, contratista_label: null } : { contratista: d.key, contratista_label: d.label }) });
+    else emptyMsg($('c-top'), 'Sin contratistas identificados con estos filtros');
+
+    // por mes de inicio
+    const withDate = ROWS.filter((r) => r.fecha_inicio && r.fecha_inicio >= '2024-01' && r.fecha_inicio < '2027-01');
+    const months = d3.utcMonths(new Date(Date.UTC(2024, 0, 1)), new Date(Date.UTC(2027, 0, 1)));
+    const grp = d3.group(withDate, (r) => r.fecha_inicio.slice(0, 7));
+    const W = $('c-mes').clientWidth || 320;
+    const items = months.map((d) => {
+      const k = d.toISOString().slice(0, 7);
+      const rr = grp.get(k) || [];
+      const mo = d.getUTCMonth();
+      return { key: k, label: `${MESES[mo]} ${d.getUTCFullYear()}`, tick: mo === 0 ? String(d.getUTCFullYear()) : (W > 560 && mo === 6 ? 'jul' : ''), value: metricOf(rr, m), extra: m === 'n' ? mill(sumV(rr)) : count(rr.length) + ' contratos' };
+    });
+    if (withDate.length) vbars($('c-mes'), items, { metric: m, color: dash.colors[3], padding: 0.2, height: W < 520 ? 220 : 280 });
+    else emptyMsg($('c-mes'), 'Ningún contrato filtrado tiene fecha de inicio');
+
+    const sig = JSON.stringify(p);
+    drawTable(sig === lastSig);
+    lastSig = sig;
+  });
+})();
+</script>
+</body>
+</html>
